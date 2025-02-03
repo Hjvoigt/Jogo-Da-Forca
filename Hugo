@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Forca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #282c34;
+            color: white;
+            margin: 50px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background: #444;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .word-display {
+            font-size: 24px;
+            letter-spacing: 5px;
+            margin: 20px 0;
+        }
+        .letters button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: white;
+            color: black;
+        }
+        .letters button:disabled {
+            background-color: grey;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Jogo da Forca</h1>
+        <p id="message"></p>
+        <div id="word" class="word-display"></div>
+        <div id="hangman"></div>
+        <div id="letters" class="letters"></div>
+        <button onclick="startGame()">Reiniciar</button>
+    </div>
+    
+    <script>
+        const words = ["javascript", "programacao", "desenvolvimento", "html", "css", "computador"];
+        let selectedWord = "";
+        let guessedWord = [];
+        let attempts = 6;
+        
+        function startGame() {
+            selectedWord = words[Math.floor(Math.random() * words.length)].toUpperCase();
+            guessedWord = Array(selectedWord.length).fill("_");
+            attempts = 6;
+            document.getElementById("message").textContent = "";
+            document.getElementById("hangman").textContent = `Tentativas restantes: ${attempts}`;
+            document.getElementById("word").textContent = guessedWord.join(" ");
+            generateLetterButtons();
+        }
+
+        function generateLetterButtons() {
+            const lettersDiv = document.getElementById("letters");
+            lettersDiv.innerHTML = "";
+            for (let i = 65; i <= 90; i++) {
+                const button = document.createElement("button");
+                button.textContent = String.fromCharCode(i);
+                button.onclick = () => guessLetter(button);
+                lettersDiv.appendChild(button);
+            }
+        }
+
+        function guessLetter(button) {
+            const letter = button.textContent;
+            let found = false;
+            button.disabled = true;
+            button.style.display = "none";
+
+            for (let i = 0; i < selectedWord.length; i++) {
+                if (selectedWord[i] === letter) {
+                    guessedWord[i] = letter;
+                    found = true;
+                }
+            }
+            
+            if (!found) {
+                attempts--;
+            }
+            
+            document.getElementById("word").textContent = guessedWord.join(" ");
+            document.getElementById("hangman").textContent = `Tentativas restantes: ${attempts}`;
+            
+            if (attempts === 0) {
+                document.getElementById("message").textContent = `Você perdeu! A palavra era ${selectedWord}`;
+                disableButtons();
+            }
+            
+            if (!guessedWord.includes("_")) {
+                document.getElementById("message").textContent = "Parabéns! Você ganhou!";
+                disableButtons();
+            }
+        }
+
+        function disableButtons() {
+            document.querySelectorAll(".letters button").forEach(button => {
+                button.disabled = true;
+                button.style.display = "none";
+            });
+        }
+        
+        startGame();
+    </script>
+</body>
+</html>
